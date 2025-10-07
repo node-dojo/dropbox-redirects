@@ -10,47 +10,15 @@
         const projectPath = urlParams.get('path');
         
         if (projectPath) {
-            // Convert the path to Dropbox deep link format
+            // Convert the path to Dropbox web URL
             const dropboxPath = projectPath.replace(/^\/Users\/[^\/]+\/Library\/CloudStorage\/Dropbox\//, '');
             const encodedPath = encodeURIComponent(dropboxPath);
-            const dropboxUrl = `dbx://dropbox/home/${encodedPath}`;
+            const dropboxWebUrl = `https://www.dropbox.com/home/${encodedPath}`;
             
-            // Set up the web link immediately
-            const webUrl = `https://www.dropbox.com/home/${encodedPath}`;
-            document.getElementById('webLink').href = webUrl;
-            document.getElementById('projectPath').textContent = dropboxPath;
-            
-            // Try multiple approaches to open Dropbox
-            let deepLinkAttempted = false;
-            
-            // Method 1: Try direct deep link
-            try {
-                window.location.href = dropboxUrl;
-                deepLinkAttempted = true;
-            } catch (e) {
-                console.log('Deep link failed:', e);
-            }
-            
-            // Method 2: Try with a hidden iframe (some browsers require this)
-            if (deepLinkAttempted) {
-                setTimeout(() => {
-                    try {
-                        const iframe = document.createElement('iframe');
-                        iframe.style.display = 'none';
-                        iframe.src = dropboxUrl;
-                        document.body.appendChild(iframe);
-                    } catch (e) {
-                        console.log('Iframe deep link failed:', e);
-                    }
-                }, 1000);
-            }
-            
-            // Method 3: Show fallback options immediately
-            setTimeout(() => {
-                document.getElementById('fallback').style.display = 'block';
-            }, 3000);
-            
+            // Redirect immediately to Dropbox web
+            window.location.href = dropboxWebUrl;
         } else {
+            // Show error if no path provided
             document.getElementById('error').style.display = 'block';
         }
     </script>
@@ -91,76 +59,12 @@
 <body>
     <div class="container">
         <h2>Opening Dropbox...</h2>
-        <p>Redirecting to your project folder in Dropbox...</p>
-        
-        <div id="fallback" class="hidden">
-            <h3>Choose How to Open Your Project</h3>
-            <p>Select your preferred method to access the project folder:</p>
-            
-            <div style="margin: 20px 0;">
-                <a id="webLink" href="#" class="button" style="margin: 10px;">🌐 Open in Dropbox Web</a>
-                <button onclick="copyPath()" class="button" style="margin: 10px;">📋 Copy Path</button>
-                <button onclick="openDropboxApp()" class="button" style="margin: 10px;">🖥️ Try Dropbox App Again</button>
-            </div>
-            
-            <p><strong>Project Path:</strong> <span id="projectPath"></span></p>
-            
-            <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px; text-align: left;">
-                <h4>Manual Instructions:</h4>
-                <ol>
-                    <li>Open your Dropbox desktop app</li>
-                    <li>Navigate to: <code id="manualPath"></code></li>
-                    <li>Or search for the folder name in Dropbox</li>
-                </ol>
-            </div>
-        </div>
+        <p>Redirecting to your project folder in Dropbox web interface...</p>
         
         <div id="error" class="hidden">
             <h3>Error</h3>
             <p>No project path provided. Please use this page with a valid project path parameter.</p>
         </div>
     </div>
-
-    <script>
-        // Set up fallback web link and manual path
-        if (projectPath) {
-            const dropboxPath = projectPath.replace(/^\/Users\/[^\/]+\/Library\/CloudStorage\/Dropbox\//, '');
-            const webUrl = `https://www.dropbox.com/home/${encodeURIComponent(dropboxPath)}`;
-            document.getElementById('webLink').href = webUrl;
-            document.getElementById('projectPath').textContent = dropboxPath;
-            document.getElementById('manualPath').textContent = dropboxPath;
-        }
-        
-        // Function to copy path to clipboard
-        function copyPath() {
-            const path = document.getElementById('projectPath').textContent;
-            navigator.clipboard.writeText(path).then(() => {
-                alert('Path copied to clipboard!');
-            }).catch(() => {
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = path;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                alert('Path copied to clipboard!');
-            });
-        }
-        
-        // Function to try Dropbox app again
-        function openDropboxApp() {
-            const dropboxPath = document.getElementById('projectPath').textContent;
-            const encodedPath = encodeURIComponent(dropboxPath);
-            const dropboxUrl = `dbx://dropbox/home/${encodedPath}`;
-            
-            try {
-                window.location.href = dropboxUrl;
-            } catch (e) {
-                console.log('Retry deep link failed:', e);
-                alert('Unable to open Dropbox app. Please try the web interface instead.');
-            }
-        }
-    </script>
 </body>
 </html>
