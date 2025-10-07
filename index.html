@@ -15,17 +15,22 @@
             const encodedPath = encodeURIComponent(dropboxPath);
             const dropboxUrl = `dbx://dropbox/home/${encodedPath}`;
             
-            // Try to open the Dropbox app
-            window.location.href = dropboxUrl;
+            // Set up the web link immediately
+            const webUrl = `https://www.dropbox.com/home/${encodedPath}`;
+            document.getElementById('webLink').href = webUrl;
+            document.getElementById('projectPath').textContent = dropboxPath;
             
-            // Fallback: show instructions if the app doesn't open
+            // Try to open the Dropbox app
+            try {
+                window.location.href = dropboxUrl;
+            } catch (e) {
+                console.log('Deep link failed:', e);
+            }
+            
+            // Show fallback after longer delay to give Dropbox time to open
             setTimeout(() => {
                 document.getElementById('fallback').style.display = 'block';
-                // Set up the web link
-                const webUrl = `https://www.dropbox.com/home/${encodedPath}`;
-                document.getElementById('webLink').href = webUrl;
-                document.getElementById('projectPath').textContent = dropboxPath;
-            }, 2000);
+            }, 5000); // Increased from 2 seconds to 5 seconds
         } else {
             document.getElementById('error').style.display = 'block';
         }
@@ -70,12 +75,12 @@
         <p>Redirecting to your project folder in Dropbox...</p>
         
         <div id="fallback" class="hidden">
-            <h3>Dropbox App Not Found</h3>
-            <p>If the Dropbox desktop app didn't open automatically:</p>
+            <h3>Dropbox Desktop App</h3>
+            <p>If the Dropbox desktop app didn't open automatically, you can:</p>
             <ol>
-                <li>Make sure the Dropbox desktop app is installed</li>
-                <li>Try clicking the button below to open in Dropbox web</li>
-                <li>Or copy the path and open it manually in Dropbox</li>
+                <li>Wait a moment - the app might still be opening</li>
+                <li>Click the button below to open in Dropbox web interface</li>
+                <li>Or manually navigate to the folder in your Dropbox app</li>
             </ol>
             <a id="webLink" href="#" class="button">Open in Dropbox Web</a>
             <p><strong>Project Path:</strong> <span id="projectPath"></span></p>
