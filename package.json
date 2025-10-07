@@ -1,0 +1,18 @@
+{
+  "name": "dropbox-redirects",
+  "version": "1.0.0",
+  "description": "GitHub Pages redirects for Dropbox deep links",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "test": "echo 'Test your redirect at: http://localhost:8000/?path=/Users/joebowers/Library/CloudStorage/Dropbox/Caveman%20Creative/THE%20WELL_Digital%20Assets/The%20Well%20Code/Project%20Tracking'"
+  },
+  "keywords": [
+    "dropbox",
+    "redirect",
+    "deep-links",
+    "github-pages"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

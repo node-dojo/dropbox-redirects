@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Opening Dropbox...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Get the project path from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectPath = urlParams.get('path');
+        
+        if (projectPath) {
+            // Convert the path to Dropbox deep link format
+            const dropboxPath = projectPath.replace(/^\/Users\/[^\/]+\/Library\/CloudStorage\/Dropbox\//, '');
+            const encodedPath = encodeURIComponent(dropboxPath);
+            const dropboxUrl = `dbx://dropbox/home/${encodedPath}`;
+            
+            // Try to open the Dropbox app
+            window.location.href = dropboxUrl;
+            
+            // Fallback: show instructions if the app doesn't open
+            setTimeout(() => {
+                document.getElementById('fallback').style.display = 'block';
+                // Set up the web link
+                const webUrl = `https://www.dropbox.com/home/${encodedPath}`;
+                document.getElementById('webLink').href = webUrl;
+                document.getElementById('projectPath').textContent = dropboxPath;
+            }, 2000);
+        } else {
+            document.getElementById('error').style.display = 'block';
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .hidden {
+            display: none;
+        }
+        .button {
+            background-color: #0061ff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+        .button:hover {
+            background-color: #0052cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Opening Dropbox...</h2>
+        <p>Redirecting to your project folder in Dropbox...</p>
+        
+        <div id="fallback" class="hidden">
+            <h3>Dropbox App Not Found</h3>
+            <p>If the Dropbox desktop app didn't open automatically:</p>
+            <ol>
+                <li>Make sure the Dropbox desktop app is installed</li>
+                <li>Try clicking the button below to open in Dropbox web</li>
+                <li>Or copy the path and open it manually in Dropbox</li>
+            </ol>
+            <a id="webLink" href="#" class="button">Open in Dropbox Web</a>
+            <p><strong>Project Path:</strong> <span id="projectPath"></span></p>
+        </div>
+        
+        <div id="error" class="hidden">
+            <h3>Error</h3>
+            <p>No project path provided. Please use this page with a valid project path parameter.</p>
+        </div>
+    </div>
+
+    <script>
+        // Set up fallback web link
+        if (projectPath) {
+            const dropboxPath = projectPath.replace(/^\/Users\/[^\/]+\/Library\/CloudStorage\/Dropbox\//, '');
+            const webUrl = `https://www.dropbox.com/home/${encodeURIComponent(dropboxPath)}`;
+            document.getElementById('webLink').href = webUrl;
+            document.getElementById('projectPath').textContent = dropboxPath;
+        }
+    </script>
+</body>
+</html>
