@@ -20,17 +20,36 @@
             document.getElementById('webLink').href = webUrl;
             document.getElementById('projectPath').textContent = dropboxPath;
             
-            // Try to open the Dropbox app
+            // Try multiple approaches to open Dropbox
+            let deepLinkAttempted = false;
+            
+            // Method 1: Try direct deep link
             try {
                 window.location.href = dropboxUrl;
+                deepLinkAttempted = true;
             } catch (e) {
                 console.log('Deep link failed:', e);
             }
             
-            // Show fallback after longer delay to give Dropbox time to open
+            // Method 2: Try with a hidden iframe (some browsers require this)
+            if (deepLinkAttempted) {
+                setTimeout(() => {
+                    try {
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = dropboxUrl;
+                        document.body.appendChild(iframe);
+                    } catch (e) {
+                        console.log('Iframe deep link failed:', e);
+                    }
+                }, 1000);
+            }
+            
+            // Method 3: Show fallback options immediately
             setTimeout(() => {
                 document.getElementById('fallback').style.display = 'block';
-            }, 5000); // Increased from 2 seconds to 5 seconds
+            }, 3000);
+            
         } else {
             document.getElementById('error').style.display = 'block';
         }
@@ -75,15 +94,25 @@
         <p>Redirecting to your project folder in Dropbox...</p>
         
         <div id="fallback" class="hidden">
-            <h3>Dropbox Desktop App</h3>
-            <p>If the Dropbox desktop app didn't open automatically, you can:</p>
-            <ol>
-                <li>Wait a moment - the app might still be opening</li>
-                <li>Click the button below to open in Dropbox web interface</li>
-                <li>Or manually navigate to the folder in your Dropbox app</li>
-            </ol>
-            <a id="webLink" href="#" class="button">Open in Dropbox Web</a>
+            <h3>Choose How to Open Your Project</h3>
+            <p>Select your preferred method to access the project folder:</p>
+            
+            <div style="margin: 20px 0;">
+                <a id="webLink" href="#" class="button" style="margin: 10px;">🌐 Open in Dropbox Web</a>
+                <button onclick="copyPath()" class="button" style="margin: 10px;">📋 Copy Path</button>
+                <button onclick="openDropboxApp()" class="button" style="margin: 10px;">🖥️ Try Dropbox App Again</button>
+            </div>
+            
             <p><strong>Project Path:</strong> <span id="projectPath"></span></p>
+            
+            <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px; text-align: left;">
+                <h4>Manual Instructions:</h4>
+                <ol>
+                    <li>Open your Dropbox desktop app</li>
+                    <li>Navigate to: <code id="manualPath"></code></li>
+                    <li>Or search for the folder name in Dropbox</li>
+                </ol>
+            </div>
         </div>
         
         <div id="error" class="hidden">
@@ -93,12 +122,44 @@
     </div>
 
     <script>
-        // Set up fallback web link
+        // Set up fallback web link and manual path
         if (projectPath) {
             const dropboxPath = projectPath.replace(/^\/Users\/[^\/]+\/Library\/CloudStorage\/Dropbox\//, '');
             const webUrl = `https://www.dropbox.com/home/${encodeURIComponent(dropboxPath)}`;
             document.getElementById('webLink').href = webUrl;
             document.getElementById('projectPath').textContent = dropboxPath;
+            document.getElementById('manualPath').textContent = dropboxPath;
+        }
+        
+        // Function to copy path to clipboard
+        function copyPath() {
+            const path = document.getElementById('projectPath').textContent;
+            navigator.clipboard.writeText(path).then(() => {
+                alert('Path copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = path;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Path copied to clipboard!');
+            });
+        }
+        
+        // Function to try Dropbox app again
+        function openDropboxApp() {
+            const dropboxPath = document.getElementById('projectPath').textContent;
+            const encodedPath = encodeURIComponent(dropboxPath);
+            const dropboxUrl = `dbx://dropbox/home/${encodedPath}`;
+            
+            try {
+                window.location.href = dropboxUrl;
+            } catch (e) {
+                console.log('Retry deep link failed:', e);
+                alert('Unable to open Dropbox app. Please try the web interface instead.');
+            }
         }
     </script>
 </body>
